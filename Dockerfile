@@ -1,5 +1,4 @@
-FROM golang:1.14.7
-MAINTAINER GitHub, Inc.
+FROM golang:1.15.6
 
 WORKDIR /go/src/github.com/git-lfs/lfs-test-server
 

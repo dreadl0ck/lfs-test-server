@@ -23,6 +23,15 @@ type Configuration struct {
 	Public      string `config:"public"`
 	UseTus      string `config:"false"`
 	TusHost     string `config:"localhost:1080"`
+	ListenHTTPS string `config:"false"`
+}
+
+func (c *Configuration) ServeHTTPS() bool {
+	switch Config.ListenHTTPS {
+	case "1", "true", "TRUE":
+		return true
+	}
+	return false
 }
 
 func (c *Configuration) IsHTTPS() bool {

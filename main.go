@@ -74,7 +74,7 @@ func main() {
 
 	listener = tl
 
-	if Config.IsHTTPS() {
+	if Config.ServeHTTPS() && Config.IsHTTPS() {
 		logger.Log(kv{"fn": "main", "msg": "Using https"})
 		listener, err = wrapHttps(tl, Config.Cert, Config.Key)
 		if err != nil {
