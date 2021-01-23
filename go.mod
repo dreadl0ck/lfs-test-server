@@ -1,12 +1,13 @@
 module github.com/git-lfs/lfs-test-server
 
 require (
-	github.com/GeertJohan/go.rice v0.0.0-20150223153050-b4a18af23143
-	github.com/boltdb/bolt v0.0.0-20150329202000-ee954308d641
-	github.com/daaku/go.zipexe v0.0.0-20150329023125-a5fe2436ffcb // indirect
-	github.com/gorilla/context v0.0.0-20141217160251-215affda49ad
-	github.com/gorilla/mux v0.0.0-20140926153814-e444e69cbd2e
-	github.com/kardianos/osext v0.0.0-20150317202929-efacde031546 // indirect
+	github.com/GeertJohan/go.rice v1.0.2
+	github.com/boltdb/bolt v1.3.1
+	github.com/daaku/go.zipexe v1.0.1 // indirect
+	github.com/gorilla/context v1.1.1
+	github.com/gorilla/mux v1.8.0
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
+	golang.org/x/sys v0.0.0-20210122235752-a8b976e07c7b // indirect
 )
 
 go 1.11
