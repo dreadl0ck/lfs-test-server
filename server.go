@@ -589,7 +589,7 @@ func (a *App) requireAuth(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !Config.IsPublic() {
 			user, password, _ := r.BasicAuth()
-			if user, ret := a.metaStore.Authenticate(user, password); !ret {
+			if user, ok := a.metaStore.Authenticate(user, password); !ok {
 				w.Header().Set("WWW-Authenticate", "Basic realm=git-lfs-server")
 				writeStatus(w, r, 401)
 				return
@@ -603,15 +603,13 @@ func (a *App) requireAuth(h http.HandlerFunc) http.HandlerFunc {
 
 func (a *App) requireAdminAuth(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !Config.IsPublic() {
-			user, password, _ := r.BasicAuth()
-			if user, ret := a.metaStore.AuthenticateAdmin(user, password); !ret {
-				w.Header().Set("WWW-Authenticate", "Basic realm=git-lfs-server")
-				writeStatus(w, r, 401)
-				return
-			} else {
-				context.Set(r, "USER", user)
-			}
+		user, password, _ := r.BasicAuth()
+		if user, ok := a.metaStore.AuthenticateAdmin(user, password); !ok {
+			w.Header().Set("WWW-Authenticate", "Basic realm=git-lfs-server")
+			writeStatus(w, r, 401)
+			return
+		} else {
+			context.Set(r, "USER", user)
 		}
 		h(w, r)
 	}
