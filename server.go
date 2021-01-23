@@ -190,7 +190,7 @@ func NewApp(content *ContentStore, meta *MetaStore) *App {
 	r.HandleFunc("/{user}/{repo}/locks", app.requireAuth(app.CreateLockHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 	r.HandleFunc("/{user}/{repo}/locks/{id}/unlock", app.requireAuth(app.DeleteLockHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 
-	r.HandleFunc("/objects/batch", app.requireAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
+	r.HandleFunc("/objects/batch", app.requireAdminAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 
 	route = "/objects/{oid}"
 	r.HandleFunc(route, app.requireAuth(app.GetContentHandler)).Methods("GET", "HEAD").MatcherFunc(ContentMatcher)
