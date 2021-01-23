@@ -176,7 +176,7 @@ func NewApp(content *ContentStore, meta *MetaStore) *App {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/{user}/{repo}/objects/batch", app.requireAdminAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
+	r.HandleFunc("/{user}/{repo}/objects/batch", app.requireAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 
 	route := "/{user}/{repo}/objects/{oid}"
 	r.HandleFunc(route, app.requireAuth(app.GetContentHandler)).Methods("GET", "HEAD").MatcherFunc(ContentMatcher)
@@ -190,7 +190,7 @@ func NewApp(content *ContentStore, meta *MetaStore) *App {
 	r.HandleFunc("/{user}/{repo}/locks", app.requireAuth(app.CreateLockHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 	r.HandleFunc("/{user}/{repo}/locks/{id}/unlock", app.requireAuth(app.DeleteLockHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 
-	r.HandleFunc("/objects/batch", app.requireAdminAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
+	r.HandleFunc("/objects/batch", app.requireAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 
 	route = "/objects/{oid}"
 	r.HandleFunc(route, app.requireAuth(app.GetContentHandler)).Methods("GET", "HEAD").MatcherFunc(ContentMatcher)
@@ -324,6 +324,19 @@ func (a *App) BatchHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Object is not found
 		if bv.Operation == "upload" {
+			
+			// this route requires always admin, even in public mode for now
+			if Config.IsPublic() {
+				user, password, _ := r.BasicAuth()
+				if user, ok := a.metaStore.AuthenticateAdmin(user, password); !ok {
+					w.Header().Set("WWW-Authenticate", "Basic realm=git-lfs-server")
+					writeStatus(w, r, 401)
+					return
+				} else {
+					context.Set(r, "USER", user)
+				}
+			}
+			
 			meta, err = a.metaStore.Put(object)
 			if err == nil {
 				responseObjects = append(responseObjects, a.Represent(object, meta, false, true, useTus))
