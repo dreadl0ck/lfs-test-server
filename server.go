@@ -176,7 +176,7 @@ func NewApp(content *ContentStore, meta *MetaStore) *App {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/{user}/{repo}/objects/batch", app.requireAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
+	r.HandleFunc("/{user}/{repo}/objects/batch", app.requireAdminAuth(app.BatchHandler)).Methods("POST").MatcherFunc(MetaMatcher)
 
 	route := "/{user}/{repo}/objects/{oid}"
 	r.HandleFunc(route, app.requireAuth(app.GetContentHandler)).Methods("GET", "HEAD").MatcherFunc(ContentMatcher)
@@ -590,6 +590,22 @@ func (a *App) requireAuth(h http.HandlerFunc) http.HandlerFunc {
 		if !Config.IsPublic() {
 			user, password, _ := r.BasicAuth()
 			if user, ret := a.metaStore.Authenticate(user, password); !ret {
+				w.Header().Set("WWW-Authenticate", "Basic realm=git-lfs-server")
+				writeStatus(w, r, 401)
+				return
+			} else {
+				context.Set(r, "USER", user)
+			}
+		}
+		h(w, r)
+	}
+}
+
+func (a *App) requireAdminAuth(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !Config.IsPublic() {
+			user, password, _ := r.BasicAuth()
+			if user, ret := a.metaStore.AuthenticateAdmin(user, password); !ret {
 				w.Header().Set("WWW-Authenticate", "Basic realm=git-lfs-server")
 				writeStatus(w, r, 401)
 				return

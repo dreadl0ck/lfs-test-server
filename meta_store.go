@@ -441,3 +441,15 @@ func (s *MetaStore) Authenticate(user, password string) (string, bool) {
 
 	return user, value != "" && value == password
 }
+
+// AuthenticateAdmin authorizes admin user with password and returns the user name
+func (s *MetaStore) AuthenticateAdmin(user, password string) (string, bool) {
+	// check admin
+	if len(user) > 0 && len(password) > 0 {
+		if ok := checkBasicAuth(user, password, true); ok {
+			return user, true
+		}
+	}
+	
+	return "", false
+}
