@@ -422,7 +422,7 @@ func (s *MetaStore) AllLocks() ([]Lock, error) {
 func (s *MetaStore) Authenticate(user, password string) (string, bool) {
 	// check admin
 	if len(user) > 0 && len(password) > 0 {
-		if ok := checkBasicAuth(user, password, true); ok {
+		if ok := checkAdminBasicAuth(user, password, true); ok {
 			return user, true
 		}
 	}
@@ -446,7 +446,7 @@ func (s *MetaStore) Authenticate(user, password string) (string, bool) {
 func (s *MetaStore) AuthenticateAdmin(user, password string) (string, bool) {
 	// check admin
 	if len(user) > 0 && len(password) > 0 {
-		if ok := checkBasicAuth(user, password, true); ok {
+		if ok := checkAdminBasicAuth(user, password, true); ok {
 			return user, true
 		}
 	}
