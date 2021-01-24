@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GeertJohan/go.rice"
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/gorilla/mux"
 )
 
@@ -52,7 +52,13 @@ func cssHandler(w http.ResponseWriter, r *http.Request) {
 	f.Close()
 }
 
-func checkBasicAuth(user string, pass string, ok bool) bool {
+func checkAdminBasicAuth(user string, pass string, ok bool) bool {
+	
+	if Config.AdminUser == "" || Config.AdminPass == "" {
+		fmt.Println("no admin user and password configured")
+		return false
+	}
+
 	if !ok {
 		return false
 	}
@@ -72,7 +78,7 @@ func basicAuth(h http.HandlerFunc) http.HandlerFunc {
 
 		user, pass, ok := r.BasicAuth()
 
-		ret := checkBasicAuth(user, pass, ok)
+		ret := checkAdminBasicAuth(user, pass, ok)
 		if !ret {
 			w.Header().Set("WWW-Authenticate", "Basic realm=mgmt")
 			writeStatus(w, r, 401)
